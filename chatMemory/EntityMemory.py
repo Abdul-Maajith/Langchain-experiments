@@ -5,6 +5,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationEntityMemory
 from langchain.memory.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
+from langchain.callbacks import get_openai_callback
 
 # Remembers the entire context of the conversation 
 
@@ -27,8 +28,10 @@ def main():
 
     while True:
         user_input = input("> ")
-
-        ai_response = conversation.predict(input=user_input)
+       
+        with get_openai_callback() as cb:
+            ai_response = conversation.predict(input=user_input)
+            print(cb)
 
         print("\nAssistant:\n", ai_response)
 
