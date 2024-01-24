@@ -20,7 +20,7 @@ def main():
         llm=llm,
         memory=ConversationEntityMemory(llm=llm),
         prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE,
-        verbose=False
+        verbose=True
     )
 
     print("Hello, I am ChatGPT CLI!")
