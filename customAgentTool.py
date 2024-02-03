@@ -2,14 +2,15 @@ import os
 import yfinance as yf
 from dotenv import load_dotenv
 from langchain.pydantic_v1 import BaseModel, Field
-from langchain.tools import BaseTool, StructuredTool, tool
+from langchain.tools import tool
 from langchain_openai import ChatOpenAI
 from langchain import hub
 from langchain.agents import AgentExecutor, create_openai_functions_agent, create_openai_tools_agent
 from fastapi import FastAPI
 from datetime import datetime, timedelta
 from typing import List
-from langchain_core.prompts.chat import ChatPromptTemplate
+from langchain_experimental.utilities import PythonREPL
+from langchain.agents import Tool
 
 load_dotenv()
 os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_KEY')
@@ -114,10 +115,19 @@ def getStockPriceStockWithPercentage(stocktickers: List[str], days_ago: int) -> 
     price_change_response = get_best_performing(stocktickers, days_ago)
     return price_change_response
 
+# Tool 4 
+python_repl = PythonREPL()
+repl_tool = Tool(
+    name="python_repl",
+    description="A Python shell. Use this to execute python commands. Input should be a valid python command. If you want to see the output of a value, you should print it out with `print(...)`.",
+    func=python_repl.run,
+)
+
 tools = [
     getStockPriceByTicker, 
     getStockPricePercentageChange, 
-    getStockPriceStockWithPercentage
+    getStockPriceStockWithPercentage,
+    repl_tool
 ]
 
 # Agent
