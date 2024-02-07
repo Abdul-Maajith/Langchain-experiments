@@ -11,6 +11,8 @@ from datetime import datetime, timedelta
 from typing import List
 from langchain_experimental.utilities import PythonREPL
 from langchain.agents import Tool
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from typing import Any
 
 load_dotenv()
 os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_KEY')
@@ -122,6 +124,23 @@ repl_tool = Tool(
     description="A Python shell. Use this to execute python commands. Input should be a valid python command. If you want to see the output of a value, you should print it out with `print(...)`.",
     func=python_repl.run,
 )
+
+class pythonCodeExecuterInput(BaseModel):
+    """Input for python code executer"""
+
+    code: str = Field(..., description="Python code which is executed to get the desired output")
+
+@tool("python-code-executer", args_schema=pythonCodeExecuterInput)
+def execute_python_code(code: str) -> Any:
+    """Execute Python code and return the output."""
+    
+    try:
+        # Execute the Python code in the current namespace
+        exec_result = {}
+        exec(code, globals(), exec_result)
+        return exec_result
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 tools = [
     getStockPriceByTicker, 
